@@ -6,12 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// সার্ভার চেক করার জন্য হোম রুট
+// হোম রুট
 app.get('/', (req, res) => {
   res.send('IDMC Ads Backend is running perfectly!');
 });
 
-// মেইন এপিআই রুট যা মেটা থেকে ডেটা আনবে
+// মেইন এপিআই রুট
 app.post('/api/insights', async (req, res) => {
   try {
     const { campaignId } = req.body;
@@ -28,7 +28,14 @@ app.post('/api/insights', async (req, res) => {
     const fields = 'campaign_name,spend,impressions,clicks,reach,cpc,cpm';
     const metaUrl = `https://graph.facebook.com/v25.0/${campaignId}/insights?fields=${fields}&access_token=${accessToken}`;
 
-    const response = await fetch(metaUrl);
+    // ✅ এখানে User-Agent হেডার যুক্ত করা হয়েছে যাতে Render রিকোয়েস্ট ব্লক না করে
+    const response = await fetch(metaUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+    
     const data = await response.json();
 
     if (data.error) {
